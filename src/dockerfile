@@ -1,0 +1,21 @@
+FROM microsoft/dotnet:2.1-sdk AS builder
+COPY ./*.csproj ./src/
+WORKDIR /src
+RUN dotnet restore
+COPY . /src
+RUN dotnet publish -c release
+
+FROM microsoft/dotnet:2.1-aspnetcore-runtime
+COPY --from=builder src/bin/release/netcoreapp2.1/publish app
+WORKDIR app
+ENV ASPNETCORE_URLS http://*:5000
+# Switch to root for changing dir ownership/permissions
+USER 0
+# In order to drop the root user, we have to make some directories world
+# writable as OpenShift default security model is to run the container under
+# random UID.
+RUN chown -R 1001:0 /app && chmod -R og+rwx /app
+EXPOSE 5000
+# Run container by default as user with id 1001 (default)
+USER 1001
+ENTRYPOINT ["dotnet", "RedHatForumSpain2018.dll"]

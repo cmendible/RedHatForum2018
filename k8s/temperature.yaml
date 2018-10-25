@@ -1,0 +1,86 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: redhatforum
+  name: redhatforum
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    app: redhatforum
+    deploymentconfig: redhatforum
+  strategy:
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: redhatforum
+        deploymentconfig: redhatforum
+    spec:
+      containers:
+        - env:
+            - name: CouchbaseServer
+              value: 'http://cb-example.default.svc.cluster.local:8091'
+          image: >-
+            docker-registry.default.svc:5000/default/redhatforum:0.1.0
+          imagePullPolicy: Always
+          name: redhatforum
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - redhatforum
+        from:
+          kind: ImageStreamTag
+          name: 'redhatforum:0.1.0'
+          namespace: default
+      type: ImageChange     
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redhatforum
+  name: redhatforum
+  namespace: default
+spec:
+  ports:
+    - name: 5000-tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+  selector:
+    deploymentconfig: redhatforum
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: 'true'
+  labels:
+    app: redhatforum
+  name: redhatforum
+  namespace: default
+spec:
+  host: redhatforum-default.65.52.142.156.nip.io
+  port:
+    targetPort: 5000-tcp
+  to:
+    kind: Service
+    name: redhatforum
+    weight: 100
+  wildcardPolicy: None
