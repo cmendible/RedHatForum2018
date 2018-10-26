@@ -6,6 +6,8 @@ using Couchbase.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Dapper;
+using Npgsql;
 
 namespace RedHatForumSpain2018.Controllers
 {
@@ -20,9 +22,16 @@ namespace RedHatForumSpain2018.Controllers
         }
 
         [HttpGet("show")]
-        public string Show()
+        public async Task<string> Show()
         {
-            return _options.Value.PostgreSQLConnectionString;
+            var connectionString = $"User ID={_options.Value.PostgreSQLUserID};Password={_options.Value.PostgreSQLPassword};Host={_options.Value.PostgreSQLHost};Port={_options.Value.PostgreSQLPort};Database={_options.Value.PostgreSQLDatabase};Pooling={_options.Value.PostgreSQLPooling};SslMode=Require";
+            var connection = new NpgsqlConnection(connectionString);
+            using (connection)
+            {
+                await connection.OpenAsync();
+                var result = await connection.ExecuteScalarAsync("select version();");
+                return result.ToString();
+            }
         }
     }
 }
