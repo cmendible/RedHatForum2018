@@ -22,6 +22,11 @@ spec:
         - env:
             - name: CouchbaseServer
               value: 'http://cb-example.default.svc.cluster.local:8091'
+            - name: PostgreSQLConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: example-postgresql-all-in-one-secret
+                  key: uri
           image: >-
             docker-registry.default.svc:5000/default/redhatforum:0.1.0
           imagePullPolicy: Always

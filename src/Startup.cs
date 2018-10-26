@@ -36,6 +36,7 @@ namespace RedHatForumSpain2018
             services.AddSignalR();
 
             services.Configure<CouchbaseOptions>(Configuration);
+            services.Configure<PostgreSQLOptions>(Configuration);
 
             services.AddCouchbase(Configuration);
         }
