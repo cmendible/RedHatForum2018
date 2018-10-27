@@ -101,7 +101,7 @@ metadata:
   name: redhatforum
   namespace: default
 spec:
-  host: redhatforum-default.65.52.142.156.nip.io
+  # host: redhatforum-default.213.199.138.16.nip.io
   port:
     targetPort: 5000-tcp
   to:
