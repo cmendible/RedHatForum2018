@@ -62,7 +62,7 @@ oc apply -f .\postgresql-instance.yaml
 oc apply -f .\postgresql-binding.yaml
 ```
 
-# Deploy the application:
+## Deploy the application:
 
 Build the image from the src directory of this:
 ``` shell
