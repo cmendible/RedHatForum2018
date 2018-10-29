@@ -1,0 +1,41 @@
+
+# Build ASP.NET Core project using Azure Pipelines
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core?view=vsts
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+  
+variables:
+  buildConfiguration: 'Release'
+  azDockerId: 'docker-registry-default.213.199.138.16.nip.io'
+  awsDockerId: 'docker-registry-default.50.19.171.131.xip.io'
+  imageName: 'default/redhatforum:0.1.0'
+
+steps:
+- script: |
+    sudo cp src/daemon.json /etc/docker/daemon.json
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
+
+- task: Docker@1
+  displayName: Login Azure Registry
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: 'azureRedhatForum'
+    command: login
+
+- script: |
+    cd src
+    docker build -t $(azDockerId)/$(imageName) .
+    docker tag  $(azDockerId)/$(imageName) $(awsDockerId)/$(imageName)
+    docker push $(azDockerId)/$(imageName)
+
+- task: Docker@1
+  displayName: Login AWS Registry
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: 'awsRedhatForum'
+    command: login
+
+- script: |
+    docker push $(awsDockerId)/$(imageName)

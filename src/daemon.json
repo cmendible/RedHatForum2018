@@ -1,0 +1,6 @@
+{
+    "insecure-registries": [
+        "docker-registry-default.213.199.138.16.nip.io",
+        "docker-registry-default.50.19.171.131.xip.io"
+    ]
+}
