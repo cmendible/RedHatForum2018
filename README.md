@@ -72,5 +72,5 @@ docker push [openshift registry name]/default/redhatforum:0.1.0
 
 For each Openshift Cluster, deploy the application from the k8s folder of this repo running:
 ```
-oc apply -f temperature.yml
+oc apply -f temperature.yaml
 ```
